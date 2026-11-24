@@ -118,9 +118,9 @@
       <span><span class="name">Starling</span><span class="note" id="starling-note">Enter the amount in Starling</span></span>
       <svg class="go" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M9 5l7 7-7 7"/></svg>
     </a></li>
-    <li><a href="https://revolut.me/artiomchi" rel="noopener noreferrer">
+    <li><a id="revolut" href="https://revolut.me/artiomchi" rel="noopener noreferrer">
       <span class="tile" aria-hidden="true"><img src="images/revolut-icon.svg" alt=""></span>
-      <span><span class="name">Revolut</span><span class="note manual">Enter the amount in Revolut</span></span>
+      <span><span class="name">Revolut</span><span class="note" id="revolut-note">Enter the amount in Revolut</span></span>
       <svg class="go" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M9 5l7 7-7 7"/></svg>
     </a></li>
     <li><a id="paypal" href="https://www.paypal.com/paypalme/artiomchi" rel="noopener noreferrer">
@@ -159,16 +159,21 @@ if (amount) {
 
   $("monzo").href += "/" + amount;
   $("paypal").href += "/" + amount + "GBP";
-  $("monzo-note").textContent = $("starling-note").textContent = note ? "Amount and note filled in" : "Amount filled in";
+  const filled = note ? "Amount and note filled in" : "Amount filled in";
+  for (const id of ["monzo", "starling", "revolut"]) $(id + "-note").textContent = filled;
   $("paypal-note").textContent = "Amount filled in. Choose Friends and Family to avoid fees";
-  for (const n of document.querySelectorAll(".manual")) n.textContent = `Enter £${amount} in the app`;
 }
-if (note) {
-  $("desc").textContent = note;
-  $("monzo").href += "?d=" + encodeURIComponent(note);
+if (note) $("desc").textContent = note;
+
+// Append ?key=value pairs to a link, skipping empty values.
+function addQuery(id, pairs) {
+  const qs = Object.entries(pairs).filter(([, v]) => v).map(([k, v]) => k + "=" + encodeURIComponent(v)).join("&");
+  if (qs) $(id).href += "?" + qs;
 }
-const starlingQuery = [amount && "amount=" + amount, note && "message=" + encodeURIComponent(note)].filter(Boolean).join("&");
-if (starlingQuery) $("starling").href += "?" + starlingQuery;
+const pennies = amount && String(Number(amount.replace(".", ""))); // "12.50" -> "1250"
+addQuery("monzo", { d: note });
+addQuery("starling", { amount, message: note });
+addQuery("revolut", { amount: pennies, currency: amount && "GBP", note });
 
 function enableCopy(btn, label, value) {
   if (!value) return;
