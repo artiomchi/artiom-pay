@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light dark">
+<title>Pay Artiom</title>
+<meta name="description" content="Send money to Artiom with Monzo, Starling, Revolut or PayPal.">
+<meta property="og:title" content="Pay Artiom">
+<meta property="og:description" content="Send money to Artiom with Monzo, Starling, Revolut or PayPal.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+<style>
+  :root {
+    --ground: #f3f3f4; --stock: #fbfbfb; --ink: #15171a; --muted: #5b5e63; --rule: #c9cacd;
+    --accent: #2c3a8c; --tint: rgba(21, 23, 26, .045);
+    --lift: 0 1px 0 rgba(21,23,26,.06), 0 18px 28px -18px rgba(21,23,26,.35);
+    --ease: cubic-bezier(.19, 1, .22, 1);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0f1012; --stock: #17181b; --ink: #eceded; --muted: #9b9ea3; --rule: #36383c;
+      --accent: #9fb0ff; --tint: rgba(236,237,237,.06);
+      --lift: 0 1px 0 rgba(255,255,255,.04), 0 18px 28px -18px rgba(0,0,0,.8);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100dvh; background: var(--ground); color: var(--ink);
+    font: 16px/1.45 Roboto, system-ui, sans-serif;
+    padding: max(40px, env(safe-area-inset-top)) 20px max(32px, env(safe-area-inset-bottom));
+    display: flex; justify-content: center; align-items: flex-start;
+  }
+  main { width: 100%; max-width: 440px; }
+  @media (min-width: 600px) { main { margin-block: auto; } }
+
+  h1 { margin: 0; font-size: 2rem; font-weight: 700; letter-spacing: -.01em; line-height: 1.1; }
+  .lede { margin: 6px 0 20px; color: var(--muted); }
+
+  .card {
+    background: var(--stock); box-shadow: inset 0 0 0 1px var(--rule), var(--lift);
+    padding: 18px 22px 22px; container-type: inline-size;
+  }
+  .label { display: flex; justify-content: space-between; font-size: .75rem; font-weight: 500;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+  .amount {
+    margin: 0; font-weight: 300; letter-spacing: -.015em; line-height: 1; white-space: nowrap;
+    font-size: clamp(1.5rem, calc(100cqi / (var(--chars, 5) * .58)), 4.2rem); font-variant-numeric: tabular-nums;
+  }
+  .amount .p { font-size: .5em; color: var(--muted); margin-left: .06em; }
+  .amount.open { font-size: 2.25rem; font-weight: 400; color: var(--muted); }
+  .desc { margin: 10px 0 0; font-size: 1.05rem; overflow-wrap: anywhere; }
+  .desc:empty { display: none; }
+
+  .copy { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+  .copy button {
+    font: inherit; font-size: .85rem; color: var(--ink); background: transparent;
+    border: 1px solid var(--rule); border-radius: 2px; min-height: 40px; padding: 0 14px; cursor: pointer;
+  }
+  .copy button:hover { border-color: var(--ink); background: var(--tint); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
+  h2 { margin: 28px 0 6px; font-size: .95rem; font-weight: 500; }
+  ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ink); }
+  li { border-bottom: 1px solid var(--rule); }
+  li a {
+    display: grid; grid-template-columns: 48px 1fr 20px; align-items: center; gap: 16px;
+    min-height: 76px; padding: 14px 8px; color: var(--ink); text-decoration: none;
+    transition: background-color .15s var(--ease);
+  }
+  li a:hover { background: var(--tint); }
+  li a:active { background: var(--rule); }
+  .tile {
+    width: 48px; height: 48px; background: #fff; display: grid; place-items: center;
+    box-shadow: inset 0 0 0 1px var(--rule); border-radius: 2px;
+    font-weight: 700; font-size: 1.25rem; color: #15171a;
+  }
+  .tile img { width: 32px; height: 32px; object-fit: contain; }
+  .name { display: block; font-weight: 500; font-size: 1.05rem; }
+  .note { display: block; font-size: .85rem; color: var(--muted); }
+  .go { color: var(--muted); transition: transform .25s var(--ease), color .15s; }
+  li a:hover .go { transform: translateX(3px); color: var(--ink); }
+  :is(a, button):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  footer { margin-top: 28px; font-size: .85rem; color: var(--muted); }
+  footer p { margin: 0 0 6px; }
+  footer a { color: inherit; text-underline-offset: 3px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Pay Artiom</h1>
+  <p class="lede">Send money to Artiom with the app you already use.</p>
+
+  <section class="card" aria-label="Payment to Artiom">
+    <div class="label"><span id="label">Amount</span><span>GBP</span></div>
+    <p class="amount open" id="amount">Any amount</p>
+    <p class="desc" id="desc"></p>
+  </section>
+  <div class="copy">
+    <button type="button" id="copy-amount" hidden>Copy amount</button>
+    <button type="button" id="copy-note" hidden>Copy note</button>
+  </div>
+  <p class="sr" id="live" role="status" aria-live="polite"></p>
+
+  <h2>Pay with</h2>
+  <!-- Payment handles live in these hrefs. The script appends amount/note where the provider supports it. -->
+  <ul>
+    <li><a id="monzo" href="https://monzo.me/artiomchilaru" rel="noopener noreferrer">
+      <span class="tile" aria-hidden="true"><img src="images/monzo-96.png" alt=""></span>
+      <span><span class="name">Monzo</span><span class="note" id="monzo-note">Enter the amount in Monzo</span></span>
+      <svg class="go" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M9 5l7 7-7 7"/></svg>
+    </a></li>
+    <li><a id="starling" href="https://settleup.starlingbank.com/artiom-chilaru-74f995" rel="noopener noreferrer">
+      <span class="tile" aria-hidden="true">S</span>
+      <span><span class="name">Starling</span><span class="note" id="starling-note">Enter the amount in Starling</span></span>
+      <svg class="go" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M9 5l7 7-7 7"/></svg>
+    </a></li>
+    <li><a href="https://revolut.me/artiomchi" rel="noopener noreferrer">
+      <span class="tile" aria-hidden="true"><img src="images/revolut-icon.svg" alt=""></span>
+      <span><span class="name">Revolut</span><span class="note manual">Enter the amount in Revolut</span></span>
+      <svg class="go" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M9 5l7 7-7 7"/></svg>
+    </a></li>
+    <li><a id="paypal" href="https://www.paypal.com/paypalme/artiomchi" rel="noopener noreferrer">
+      <span class="tile" aria-hidden="true"><img src="images/paypal-96.png" alt=""></span>
+      <span><span class="name">PayPal</span><span class="note" id="paypal-note">Choose Friends and Family to avoid fees</span></span>
+      <svg class="go" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M9 5l7 7-7 7"/></svg>
+    </a></li>
+  </ul>
+
+  <footer>
+    <p>Each option opens your own app with Artiom's details. This page never sees your card or bank details.</p>
+    <a href="https://github.com/artiomchi/artiom-pay">Source code</a>
+  </footer>
+</main>
+
+<script>
+// ?amount=12.50&description=Dinner (or &d=Dinner). Query input is untrusted: textContent only.
+const $ = id => document.getElementById(id);
+const q = new URLSearchParams(location.search);
+const raw = (q.get("amount") || "").trim();
+const amount = /^\d{1,7}(\.\d{1,2})?$/.test(raw) && +raw > 0 ? (+raw).toFixed(2) : "";
+const note = (q.get("description") || q.get("d") || q.get("m") || "").trim().slice(0, 140);
+
+if (amount) {
+  const [pounds, pence] = amount.split(".");
+  const head = "£" + Number(pounds).toLocaleString("en-GB");
+  const p = document.createElement("span");
+  p.className = "p";
+  p.textContent = "." + pence;
+  const el = $("amount");
+  el.className = "amount";
+  el.style.setProperty("--chars", head.length + 1.6);
+  el.replaceChildren(head, p);
+  $("label").textContent = "Amount due";
+  document.title = `Pay £${amount} to Artiom`;
+
+  $("monzo").href += "/" + amount;
+  $("paypal").href += "/" + amount + "GBP";
+  $("monzo-note").textContent = $("starling-note").textContent = note ? "Amount and note filled in" : "Amount filled in";
+  $("paypal-note").textContent = "Amount filled in. Choose Friends and Family to avoid fees";
+  for (const n of document.querySelectorAll(".manual")) n.textContent = `Enter £${amount} in the app`;
+}
+if (note) {
+  $("desc").textContent = note;
+  $("monzo").href += "?d=" + encodeURIComponent(note);
+}
+const starlingQuery = [amount && "amount=" + amount, note && "message=" + encodeURIComponent(note)].filter(Boolean).join("&");
+if (starlingQuery) $("starling").href += "?" + starlingQuery;
+
+function enableCopy(btn, label, value) {
+  if (!value) return;
+  btn.hidden = false;
+  btn.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(value); btn.textContent = "Copied"; $("live").textContent = label + " copied"; }
+    catch { btn.textContent = value; }
+    setTimeout(() => { btn.textContent = "Copy " + label; }, 1500);
+  });
+}
+enableCopy($("copy-amount"), "amount", amount);
+enableCopy($("copy-note"), "note", note);
+</script>
+</body>
+</html>
